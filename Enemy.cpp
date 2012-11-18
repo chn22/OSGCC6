@@ -36,6 +36,7 @@ int enem_init(lua_State *L) {
 }
 
 void enem_loadValues(Enemy *enemy) {
+	enemy->type = enemInitVals.type;
 	enemy->x = enemInitVals.px;
 	enemy->y = enemInitVals.py;
 	enemy->width = enemInitVals.width;
@@ -69,7 +70,9 @@ int enem_recvBullet(lua_State *L) {
 	enemNewBlt.targeted = lua_tointeger(L, 2);
 	enemNewBlt.srcx = lua_tonumber(L, 3);
 	enemNewBlt.srcy = lua_tonumber(L, 4);
-	lua_pop(L, 4);
+	enemNewBlt.tgtx = lua_tonumber(L, 5);
+	enemNewBlt.tgty = lua_tonumber(L, 6);
+	lua_pop(L, 6);
 	return 0;
 }
 
@@ -77,6 +80,9 @@ void enem_addBullet(Enemy *enemy) {
 	EnemyBullet newBullet;
 	if (enemNewBlt.targeted == 0) {
 		enblt_load(&newBullet, enemNewBlt.type, enemNewBlt.srcx, enemNewBlt.srcy, -1, -1);
+		if (enemNewBlt.tgtx > 0 && enemNewBlt.tgty > 0) {
+			enblt_load(&newBullet, enemNewBlt.type, enemNewBlt.srcx, enemNewBlt.srcy, enemNewBlt.tgtx, enemNewBlt.tgty);
+		}
 	}
 	else {
 		float tgtx = dx_getGame()->player->x;
@@ -110,6 +116,13 @@ int enem_removeBlts(lua_State *L) {
 
 int enem_kill(lua_State *L) {
 	killEnemy = true;
+	return 0;
+}
+
+int enem_spawnItem(lua_State *L) {
+	std::string type = lua_tostring(L, 1);
+	lua_pop(L, 1);
+	addItem(type);
 	return 0;
 }
 

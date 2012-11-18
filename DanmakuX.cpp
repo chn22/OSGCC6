@@ -144,6 +144,12 @@ void addPauseItem(std::string type) {
 	danmakux.pauseitems.push_back(newItem);
 }
 
+void addItem(std::string type) {
+	Item newItem;
+	item_load(&newItem, type);
+	danmakux.items.push_back(newItem);
+}
+
 int addEnemy(lua_State *L) {
 	std::string type = lua_tostring(L, 1);
 	float srcx = lua_tonumber(L, 2);
@@ -288,10 +294,13 @@ void gameloop() {
 						danmakux.player->mover = true;
 						break;
 					case ALLEGRO_KEY_Z:
-						danmakux.player->fire = 1;
+						danmakux.player->fireFront = 1;
 						break;
 					case ALLEGRO_KEY_X:
-						danmakux.fireBomb = true;
+						danmakux.player->fireBack = 1;
+						break;
+					case ALLEGRO_KEY_C:
+						danmakux.player->fireSide = 1;
 						break;
 					case ALLEGRO_KEY_LSHIFT:
 						danmakux.player->focused = true;
@@ -382,7 +391,13 @@ void gameloop() {
 						danmakux.player->mover = false;
 						break;
 					case ALLEGRO_KEY_Z:
-						danmakux.player->fire = 0;
+						danmakux.player->fireFront = 0;
+						break;
+					case ALLEGRO_KEY_X:
+						danmakux.player->fireBack = 0;
+						break;
+					case ALLEGRO_KEY_C:
+						danmakux.player->fireSide = 0;
 						break;
 					case ALLEGRO_KEY_LSHIFT:
 						danmakux.player->focused = false;
@@ -442,6 +457,7 @@ void gameLogic() {
 				}
 				if ((*j).health <= 0) {
 					(*j).dead = true;
+					addItem("powerup");
 				}
 				if ((*j).dead && (*j).bullets.empty()) {
 					enem_close(&(*j));
@@ -490,8 +506,10 @@ void gameLogic() {
 			}
 		}
 		if (rect_intersects(&(*i).hitbox, &danmakux.player->pickupbox)) {
+			if ((*i).type == "powerup") {
+				runFunction(&danmakux.player->script, "powerup");
+			}
 			i = danmakux.items.erase(i);
-			//pickup effect
 		}
 	}
 }

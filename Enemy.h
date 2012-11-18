@@ -13,6 +13,7 @@
 #include <string>
 
 typedef struct Enemy {
+	std::string type;
 	float x, y, width, height, health, maxhealth;
 	int frames, curframe, animdelay, animframespast;
 	SqBox hitbox;
@@ -36,7 +37,7 @@ typedef struct enem_newBullet {
 	std::string type;
 	bool exists;
 	int targeted;
-	float srcx, srcy;
+	float srcx, srcy, tgtx, tgty;
 } enem_newBullet;
 
 void enem_load(Enemy *enemy, std::string type, float srcx, float srcy);
@@ -49,6 +50,7 @@ void enem_clearBullets(Enemy *enemy);
 int enem_getPos(lua_State *L);
 int enem_sendHealth(lua_State *L);
 int enem_removeBlts(lua_State *L);
+int enem_spawnItem(lua_State *L);
 int enem_kill(lua_State *L);
 void enem_loadPos(Enemy *enemy);
 void enem_update(Enemy *enemy);
